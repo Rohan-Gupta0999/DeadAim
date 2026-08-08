@@ -1,0 +1,11 @@
+build/ 
+#kind of stores the obj file and all the linker loader type shit
+.vscode/
+.DS_Store
+*.o
+#  * is called wildcard and throught his the git will ignore any file in whose extension name will come the letter ".o"
+*.obj
+__pycache__/
+*.pyc
+*.task
+savegame.json
