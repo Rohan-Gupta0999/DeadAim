@@ -11,7 +11,7 @@ public:
     const char* getName() const override { return "Fireball"; }
 
 private:
-    float m_cooldownTimer = 0.f;
+    float m_cooldownTimer = 1.4f;
 
     static constexpr float kCooldownSeconds = 0.4f;
 };

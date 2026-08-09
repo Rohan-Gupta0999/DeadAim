@@ -7,7 +7,7 @@ namespace deadaim {
 namespace {
 const ProjectileConfig kFireballConfig{
     14.f,                       // speed: slowest of the three
-    90,                         // damage, applied to everything in the blast
+    220,                         // damage, applied to everything in the blast
     sf::Color(255, 140, 40),
     {0.34f, 0.34f},             // world size: chunky, roughly square
     0.14f,                      // collision radius
