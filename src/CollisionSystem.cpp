@@ -37,9 +37,10 @@ bool sweptSphereHit(sf::Vector3f from, sf::Vector3f to, float movingRadius,
 }
 
 void damageZombie(Scene& scene, Zombie& zombie, int amount) {
-    bool wasAlive = zombie.isAlive();
+    bool wasTargetable = zombie.isTargetable();
     zombie.takeDamage(amount);
-    if (wasAlive && !zombie.isAlive()) {
+
+    if (wasTargetable && !zombie.isTargetable()) {
         scene.addScore(kScorePerKill);
     }
 }
@@ -63,8 +64,8 @@ void CollisionSystem::update(Scene& scene, AudioSystem& audio) {
         }
 
         for (Zombie* zombie : zombies) {
-            if (!zombie->isAlive()) {
-                continue;
+            if (!zombie->isTargetable()) {
+                 continue;
             }
             // Already damaged this one -- a piercing arrow stays within
             // range of a zombie for several consecutive ticks.
@@ -87,8 +88,8 @@ void CollisionSystem::update(Scene& scene, AudioSystem& audio) {
             float blastRadius = projectile->getExplosionRadius();
             if (blastRadius > 0.f) {
                 for (Zombie* other : zombies) {
-                    if (other == zombie || !other->isAlive()) {
-                        continue; 
+                    if (other == zombie || !other->isTargetable()) {
+                        continue;
                     }
                     if (spheresOverlap(impactPoint, blastRadius,
                                         other->getWorldPosition(), other->getWorldRadius())) {

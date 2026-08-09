@@ -163,7 +163,7 @@ void Application::updatePlaying(float dt, sf::Vector2f mouseDesignPosition) {
     
     int health = m_scene.getPlayer().getHealth();
     int score = m_scene.getScore();
-
+    bool playerHurt = health < m_lastHealth;
     if (health < m_lastHealth) {
         m_audio.play(SoundId::PlayerHurt);
     }
@@ -184,7 +184,8 @@ void Application::updatePlaying(float dt, sf::Vector2f mouseDesignPosition) {
     hudState.inGunMode = intent.gesture == GestureType::Gun;
     hudState.bowDrawn = intent.gesture == GestureType::Bow;
     hudState.fireballCharge = intent.fireballCharge;
-    m_hud.update(hudState);
+    hudState.playerJustHurt = playerHurt;
+    m_hud.update(dt , hudState);
     m_weaponView.update(dt, m_scene.getPlayer().getEquippedWeapon(),
                         m_scene.consumeShotFired());
 if (!m_scene.getPlayer().isAlive()) {

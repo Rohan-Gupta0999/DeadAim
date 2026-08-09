@@ -24,7 +24,11 @@ HUD::HUD(AssetManager& assets) {
     m_healthBarBackground.setFillColor(sf::Color(60, 60, 60));
     m_healthBarBackground.setOutlineColor(sf::Color(180, 180, 180));
     m_healthBarBackground.setOutlineThickness(2.f);
-
+    m_damageFlash.setSize({1920.f, 1080.f});
+    m_damageFlash.setPosition({0.f, 0.f});
+    m_damageFlash.setFillColor(
+        sf::Color(180, 0, 0, 0)
+    );
     m_healthBarFill.setSize({kHealthBarWidth, kHealthBarHeight});
     m_healthBarFill.setPosition(kHealthBarPosition);
     m_healthBarFill.setFillColor(sf::Color(200, 40, 40));
@@ -68,7 +72,33 @@ HUD::HUD(AssetManager& assets) {
 
 }
 
-void HUD::update(const HudState& state) {
+void HUD::update(float dt, const HudState& state) {{
+    if (state.playerJustHurt) {
+    m_damageFlashTimer = kDamageFlashSeconds;
+}
+
+m_damageFlashTimer =
+    std::max(
+        0.f,
+        m_damageFlashTimer - dt
+    );
+
+if (m_damageFlashTimer > 0.f) {
+    float intensity =
+        m_damageFlashTimer /
+        kDamageFlashSeconds;
+
+    m_damageFlash.setFillColor(
+        sf::Color(
+            190,
+            15,
+            15,
+            static_cast<std::uint8_t>(
+                115.f * intensity
+            )
+        )
+    );
+}
     float healthFraction = (state.maxHealth > 0)
         ? static_cast<float>(state.health) / static_cast<float>(state.maxHealth)
         : 0.f;
@@ -114,8 +144,14 @@ void HUD::update(const HudState& state) {
         m_trackingText->setFillColor(sf::Color(200, 200, 200));
     }
 }
-
+}
 void HUD::render(Renderer& renderer) const {
+        if (m_damageFlashTimer > 0.f) {
+        renderer.submit(
+            m_damageFlash,
+            RenderLayer::UI
+        );
+    }
     renderer.submit(m_healthBarBackground, RenderLayer::UI);
     renderer.submit(m_healthBarFill, RenderLayer::UI);
 

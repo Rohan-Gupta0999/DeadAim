@@ -23,7 +23,13 @@ private:
    WeaponType m_currentWeapon = WeaponType::Gun;
     float m_idleTime = 0.f;
     float m_recoil = 0.f;   
+    sf::CircleShape m_muzzleFlash;
+        float m_flashTimer = 0.f;
 
+        static constexpr float kFlashSeconds = 0.055f;
+        static constexpr float kFlashRadius = 46.f;
+        static constexpr float kFlashOffsetX = 46.f;
+        static constexpr float kFlashOffsetY = 225.f;
     static constexpr float kTargetHeight = 300.f;
     
     static constexpr float kAnchorX = 1090.f;

@@ -10,17 +10,6 @@ class Renderer;
 class Player;
 class AssetManager;
 
-// Purpose: the single enemy type -- approaches through world space and is
-// projected to screen by the shared camera model.
-//
-// Movement model: the zombie holds a world position (lateral, depth) and
-// advances in depth at a constant world speed while steering laterally
-// toward a narrow band in front of the player. Screen position, scale and
-// draw order all fall out of projecting that world position -- no screen
-// coordinates are ever interpolated directly.
-//
-// Constructed from a LANE in [-1, 1] rather than a pixel position, so
-// WaveSystem never has to know about the projection.
 class Zombie : public IGameObject {
 public:
     Zombie(float lane, Player& player, AssetManager& assets,
@@ -29,7 +18,7 @@ public:
     void update(float dt) override;
     void render(Renderer& renderer) const override;
     bool isAlive() const override;
-
+    bool isTargetable() const;
     void takeDamage(int amount);
     sf::Vector3f getWorldPosition() const; 
     float getWorldRadius() const;          
@@ -54,9 +43,20 @@ private:
     unsigned int m_id;
     static unsigned int s_nextId;
 
+    float m_hitFlashTimer = 0.f;
+    float m_deathTimer = 0.f;
+    float m_fallDirection = 1.f;
+
+    bool m_dying = false;
+    bool m_removalReady = false;
+
+    static constexpr float kHitFlashSeconds = 0.09f;
+    static constexpr float kDeathSeconds = 0.55f;
+    static constexpr float kFallAngle = 82.f;
+
     static constexpr float kAttackIntervalSeconds = 1.f;
     static constexpr int kAttackDamage = 5;
-    static constexpr float kBodyRadiusFraction = 0.30f; 
+    static constexpr float kBodyRadiusFraction = 0.30f;
 };
 
 } 

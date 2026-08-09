@@ -62,11 +62,15 @@ int WaveSystem::getCurrentWave() const {
 
 int WaveSystem::countLiveZombies(const Scene& scene) const {
     int count = 0;
+
     for (const auto& object : scene.getObjects()) {
-        if (dynamic_cast<Zombie*>(object.get())) {
+        auto* zombie = dynamic_cast<Zombie*>(object.get());
+
+        if (zombie != nullptr && zombie->isTargetable()) {
             ++count;
         }
     }
+
     return count;
 }
 

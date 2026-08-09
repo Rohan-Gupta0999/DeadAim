@@ -13,8 +13,14 @@ WeaponView::WeaponView(AssetManager& assets)
     , m_gunTexture(&assets.getTexture("assets/textures/hands_gun.png"))
     , m_bowTexture(&assets.getTexture("assets/textures/hands_bow.png"))
     , m_fireballTexture(&assets.getTexture("assets/textures/hands_fireball.png"))
+    
+    
 {
     update(0.f, WeaponType::Gun, false);
+    m_muzzleFlash.setPointCount(6);
+    m_muzzleFlash.setRadius(kFlashRadius);
+    m_muzzleFlash.setOrigin({kFlashRadius, kFlashRadius});
+    m_muzzleFlash.setFillColor(sf::Color(255, 220, 130, 0));
 }
 
 void WeaponView::update(float dt, WeaponType weapon, bool justFired) {
@@ -46,10 +52,57 @@ void WeaponView::update(float dt, WeaponType weapon, bool justFired) {
     
     m_sprite.setPosition({kAnchorX + bobX,
                           perspective::kDesignHeight + kAnchorBottomOffset + bobY + kick});
+    if (justFired) {
+    m_flashTimer = kFlashSeconds;
 }
 
+m_flashTimer = std::max(
+    0.f,
+    m_flashTimer - dt
+);
+
+if (m_flashTimer > 0.f) {
+    float intensity =
+        m_flashTimer / kFlashSeconds;
+
+    float radius =
+        kFlashRadius *
+        (0.55f + 0.45f * intensity);
+
+    m_muzzleFlash.setRadius(radius);
+    m_muzzleFlash.setOrigin({radius, radius});
+
+    m_muzzleFlash.setFillColor(
+        sf::Color(
+            255,
+            222,
+            140,
+            static_cast<std::uint8_t>(
+                235.f * intensity
+            )
+        )
+    );
+
+    m_muzzleFlash.setPosition({
+        kAnchorX + kFlashOffsetX + bobX,
+
+        perspective::kDesignHeight
+        + kAnchorBottomOffset
+        - kFlashOffsetY
+        + bobY
+        + kick
+    });
+}
+                        }
 void WeaponView::render(Renderer& renderer) const {
     renderer.submit(m_sprite, RenderLayer::Weapon);
-}
 
-} 
+    if (m_flashTimer > 0.f) {
+        renderer.submit(
+            m_muzzleFlash,
+            RenderLayer::Weapon,
+            1.f
+        );
+    }
+}
+}
