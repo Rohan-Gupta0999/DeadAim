@@ -82,5 +82,15 @@ void AudioSystem::setMusicVolume(float volume) {
         m_music.setVolume(volume);
     }
 }
+void AudioSystem::pauseMusic() {
+    if (m_musicReady && m_music.getStatus() == sf::SoundSource::Status::Playing) {
+        m_music.pause();
+    }
+}
 
+void AudioSystem::resumeMusic() {
+    if (m_musicReady && m_music.getStatus() == sf::SoundSource::Status::Paused) {
+        m_music.play();
+    }
+}
 }

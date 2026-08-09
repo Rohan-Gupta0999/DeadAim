@@ -26,8 +26,18 @@ void Window::processEvents() {
                 m_leftClickPending = true;
                 m_lastClickPixel = pressed->position;
             }
+        } else if (const auto* key = event->getIf<sf::Event::KeyPressed>()) {
+            if (key->code == sf::Keyboard::Key::Escape) {
+                m_escapePending = true;
+            }
         }
     }
+}
+
+bool Window::consumeEscapePressed() {
+    bool wasPending = m_escapePending;
+    m_escapePending = false;
+    return wasPending;
 }
 
 void Window::clear(const sf::Color& color) {

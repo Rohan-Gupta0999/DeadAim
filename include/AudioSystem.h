@@ -36,7 +36,8 @@ public:
 
     void setSfxVolume(float volume);    // 0..100
     void setMusicVolume(float volume);  // 0..100
-
+    void pauseMusic();
+    void resumeMusic();
 private:
     void loadSound(SoundId id, const std::string& path);
 

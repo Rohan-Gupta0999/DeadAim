@@ -20,7 +20,8 @@ enum class GameState {
     MainMenu,
     Playing,
     GameOver,
-    SettingsMenu
+    SettingsMenu,
+    Paused
 
 };
 
@@ -51,7 +52,8 @@ private:
     Environment m_environment;
     WeaponView m_weaponView;
     static constexpr float kFixedTimestep = 1.0f / 60.0f;
-   
+    void updateMenus(sf::Vector2f mouseDesignPosition);
+    void resumeFromPause();
     struct PlayerIntent {
         sf::Vector2f aimTarget;
         bool shootRequest = false;

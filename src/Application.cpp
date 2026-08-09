@@ -62,44 +62,116 @@ void Application::update(float dt) {
 
     sf::Vector2f mouseDesignPosition =
         m_renderer.mapPixelToDesignSpace(m_window.getMousePixelPosition());
-    // ... rest unchanged    
+
+    bool escapePressed = m_window.consumeEscapePressed();
+
     switch (m_state) {
-    case GameState::MainMenu:
-    case GameState::GameOver:
-    case GameState::SettingsMenu: {
-        bool clicked = m_window.consumeLeftClick();
-        MenuScreen::Action action = m_menu.update(mouseDesignPosition, clicked);
-
-        if (action != MenuScreen::Action::None && action != MenuScreen::Action::SettingsChanged) {
+    case GameState::Playing:
+        if (escapePressed) {
+            MenuInfo info;
+            info.finalScore = m_scene.getScore();
+            m_menu.setMode(MenuScreen::Mode::Paused, info);
+            m_audio.pauseMusic();
             m_audio.play(SoundId::MenuClick);
+            m_state = GameState::Paused;
+            m_window.consumeLeftClick();
+            break;
         }
+        updatePlaying(dt, mouseDesignPosition);
+        break;
 
-        if (action == MenuScreen::Action::StartGame) {
-            resetGame();
-            applySettings(m_saveSystem.getSettings());
-            m_audio.startMusic();
-            m_state = GameState::Playing;
-        } else if (action == MenuScreen::Action::OpenSettings) {
-            m_menu.setMode(MenuScreen::Mode::Settings);
-            m_state = GameState::SettingsMenu;
-        } else if (action == MenuScreen::Action::SettingsChanged) {
-            m_saveSystem.updateSettings(m_menu.getSettings());
-            applySettings(m_menu.getSettings());
-        } else if (action == MenuScreen::Action::CloseSettings) {
+    case GameState::SettingsMenu:
+        if (escapePressed) {
             MenuInfo info;
             info.highScore = m_saveSystem.getHighScore();
             m_menu.setMode(MenuScreen::Mode::MainMenu, info);
+            m_audio.play(SoundId::MenuClick);
             m_state = GameState::MainMenu;
-        } else if (action == MenuScreen::Action::Quit) {
-            m_window.close();
+            m_window.consumeLeftClick();
+            break;
         }
+        updateMenus(mouseDesignPosition);
+        break;
+
+    case GameState::Paused:
+        if (escapePressed) {
+            resumeFromPause();
+            m_window.consumeLeftClick();
+            break;
+        }
+        updateMenus(mouseDesignPosition);
+        break;
+
+    case GameState::MainMenu:
+    case GameState::GameOver:
+        updateMenus(mouseDesignPosition);
+        break;
+    }
+}
+
+void Application::updateMenus(sf::Vector2f mouseDesignPosition) {
+    bool clicked = m_window.consumeLeftClick();
+    MenuScreen::Action action = m_menu.update(mouseDesignPosition, clicked);
+
+    if (action != MenuScreen::Action::None && action != MenuScreen::Action::SettingsChanged) {
+        m_audio.play(SoundId::MenuClick);
+    }
+
+    switch (action) {
+    case MenuScreen::Action::StartGame:
+        resetGame();
+        applySettings(m_saveSystem.getSettings());
+        m_audio.resumeMusic();
+        m_audio.startMusic();
+        m_state = GameState::Playing;
+        break;
+
+    case MenuScreen::Action::Resume:
+        resumeFromPause();
+        break;
+
+    case MenuScreen::Action::ToMainMenu: {
+        m_audio.stopMusic();
+        MenuInfo info;
+        info.highScore = m_saveSystem.getHighScore();
+        m_menu.setMode(MenuScreen::Mode::MainMenu, info);
+        m_state = GameState::MainMenu;
         break;
     }
 
-    case GameState::Playing:
-        updatePlaying(dt, mouseDesignPosition);
+    case MenuScreen::Action::OpenSettings:
+        m_menu.setMode(MenuScreen::Mode::Settings);
+        m_state = GameState::SettingsMenu;
+        break;
+
+    case MenuScreen::Action::SettingsChanged:
+        m_saveSystem.updateSettings(m_menu.getSettings());
+        applySettings(m_menu.getSettings());
+        break;
+
+    case MenuScreen::Action::CloseSettings: {
+        MenuInfo info;
+        info.highScore = m_saveSystem.getHighScore();
+        m_menu.setMode(MenuScreen::Mode::MainMenu, info);
+        m_state = GameState::MainMenu;
         break;
     }
+
+    case MenuScreen::Action::Quit:
+        m_window.close();
+        break;
+
+    case MenuScreen::Action::None:
+        break;
+    }
+}
+
+void Application::resumeFromPause() {
+    m_holdWasActive = false;
+    m_fireballCharge = 0.f;
+    m_visionWasTracking = false;
+    m_audio.resumeMusic();
+    m_state = GameState::Playing;
 }
 
 Application::PlayerIntent Application::resolveInput(float dt, sf::Vector2f mouseDesignPosition) {
@@ -242,7 +314,8 @@ void Application::render() {
   
     m_environment.render(m_renderer);
 
-    if (m_state == GameState::Playing || m_state == GameState::GameOver) {
+    if (m_state == GameState::Playing || m_state == GameState::GameOver
+    || m_state == GameState::Paused) {
         m_scene.render(m_renderer);
         m_weaponView.render(m_renderer);
         m_hud.render(m_renderer);

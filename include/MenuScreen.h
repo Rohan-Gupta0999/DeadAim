@@ -19,8 +19,8 @@ struct MenuInfo {
 
 class MenuScreen {
 public:
-    enum class Mode { MainMenu, GameOver , Settings };
-    enum class Action { None, StartGame, Quit, OpenSettings, CloseSettings, SettingsChanged };
+    enum class Mode { MainMenu, GameOver , Settings , Paused };
+    enum class Action { None, StartGame, Quit, OpenSettings, CloseSettings, SettingsChanged, Resume, ToMainMenu };
 
     explicit MenuScreen(AssetManager& assets);
 
