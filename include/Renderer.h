@@ -16,7 +16,7 @@ public:
     
     void submit(const sf::Drawable& drawable, RenderLayer layer, float sortKey = 0.f);
     void endFrame();
-
+    void applyLetterbox();
     
     sf::Vector2f mapPixelToDesignSpace(sf::Vector2i pixel) const;
 

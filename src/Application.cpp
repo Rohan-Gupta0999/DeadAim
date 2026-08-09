@@ -4,6 +4,7 @@
 #include <SFML/System/Clock.hpp>
 #include <algorithm>
 #include <optional>
+#include "Settings.h"
 
 namespace deadaim {
 
@@ -21,14 +22,19 @@ Application::Application()
     , m_weaponView(m_assetManager)
 {
     m_saveSystem.load();
-
+    m_menu.setSettings(m_saveSystem.getSettings());
+    applySettings(m_saveSystem.getSettings());
     MenuInfo info;
     info.highScore = m_saveSystem.getHighScore();
     m_menu.setMode(MenuScreen::Mode::MainMenu, info);
 
     m_visionClient.connect("127.0.0.1", 50505);
 }
-
+void Application::applySettings(const Settings& settings) {
+    m_audio.setMusicVolume(settings.musicVolume);
+    m_audio.setSfxVolume(settings.sfxVolume);
+    m_scene.getPlayer().setSensitivity(settings.sensitivity);
+}
 void Application::run() {
     sf::Clock clock;
     float accumulator = 0.0f;
@@ -59,23 +65,35 @@ void Application::update(float dt) {
     // ... rest unchanged    
     switch (m_state) {
     case GameState::MainMenu:
-    case GameState::GameOver: {
+    case GameState::GameOver:
+    case GameState::SettingsMenu: {
         bool clicked = m_window.consumeLeftClick();
-MenuScreen::Action action = m_menu.update(mouseDesignPosition, clicked);
+        MenuScreen::Action action = m_menu.update(mouseDesignPosition, clicked);
 
-if (action != MenuScreen::Action::None) {
-    m_audio.play(SoundId::MenuClick);
-}
+        if (action != MenuScreen::Action::None && action != MenuScreen::Action::SettingsChanged) {
+            m_audio.play(SoundId::MenuClick);
+        }
 
-if (action == MenuScreen::Action::StartGame) {
-    resetGame();
-    m_audio.startMusic();
-    m_state = GameState::Playing;
-} else if (action == MenuScreen::Action::Quit) {
-    m_window.close();
-}
-
-break;
+        if (action == MenuScreen::Action::StartGame) {
+            resetGame();
+            applySettings(m_saveSystem.getSettings());
+            m_audio.startMusic();
+            m_state = GameState::Playing;
+        } else if (action == MenuScreen::Action::OpenSettings) {
+            m_menu.setMode(MenuScreen::Mode::Settings);
+            m_state = GameState::SettingsMenu;
+        } else if (action == MenuScreen::Action::SettingsChanged) {
+            m_saveSystem.updateSettings(m_menu.getSettings());
+            applySettings(m_menu.getSettings());
+        } else if (action == MenuScreen::Action::CloseSettings) {
+            MenuInfo info;
+            info.highScore = m_saveSystem.getHighScore();
+            m_menu.setMode(MenuScreen::Mode::MainMenu, info);
+            m_state = GameState::MainMenu;
+        } else if (action == MenuScreen::Action::Quit) {
+            m_window.close();
+        }
+        break;
     }
 
     case GameState::Playing:
@@ -220,7 +238,7 @@ void Application::resetGame() {
 
 void Application::render() {
     m_renderer.beginFrame(sf::Color(20, 20, 25));
-
+    m_renderer.applyLetterbox();
   
     m_environment.render(m_renderer);
 
@@ -228,7 +246,6 @@ void Application::render() {
         m_scene.render(m_renderer);
         m_weaponView.render(m_renderer);
         m_hud.render(m_renderer);
-        
     }
     if (m_state != GameState::Playing) {
         m_menu.render(m_renderer);

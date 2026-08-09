@@ -11,9 +11,29 @@ Renderer::Renderer(sf::RenderTarget& target)
     : m_target(target)
     , m_designView(sf::FloatRect({0.f, 0.f}, {kDesignWidth, kDesignHeight}))
 {
+    applyLetterbox();
+}
+void Renderer::applyLetterbox() {
+    sf::Vector2u targetSize = m_target.getSize();
+    if (targetSize.x == 0 || targetSize.y == 0) {
+        return;
+    }
+
+    float designRatio = kDesignWidth / kDesignHeight;
+    float targetRatio = static_cast<float>(targetSize.x) / static_cast<float>(targetSize.y);
+
+    sf::FloatRect viewport({0.f, 0.f}, {1.f, 1.f});
+    if (targetRatio > designRatio) {
+        float width = designRatio / targetRatio;
+        viewport = sf::FloatRect({(1.f - width) / 2.f, 0.f}, {width, 1.f});
+    } else if (targetRatio < designRatio) {
+        float height = targetRatio / designRatio;
+        viewport = sf::FloatRect({0.f, (1.f - height) / 2.f}, {1.f, height});
+    }
+
+    m_designView.setViewport(viewport);
     m_target.setView(m_designView);
 }
-
 void Renderer::beginFrame(const sf::Color& clearColor) {
     m_target.clear(clearColor);
     for (auto& bucket : m_layers) {

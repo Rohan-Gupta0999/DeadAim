@@ -24,7 +24,7 @@ public:
     int getHealth() const;
     int getMaxHealth() const;
     const char* getWeaponName() const;
-
+    void setSensitivity(float sensitivity);
     sf::Vector2f getCrosshairPosition() const;
     sf::Vector2f getPosition() const;
     std::unique_ptr<Projectile> tryFire();
@@ -40,7 +40,7 @@ private:
     WeaponType m_equippedType = WeaponType::Gun;
 
     static constexpr int kMaxHealth = 100;
-    static constexpr float kCrosshairSmoothing = 0.2f;
+    float m_crosshairSmoothing = 0.20f;
     static constexpr float kCrosshairRadius = 14.f;
     static constexpr float kDesignWidth = 1920.f;
     static constexpr float kDesignHeight = 1080.f;

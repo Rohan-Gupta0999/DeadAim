@@ -7,6 +7,7 @@
 #include "Bow.h"
 #include "Fireball.h"
 #include "Perspective.h"
+#include "Settings.h"
 
 namespace deadaim {
 
@@ -30,12 +31,16 @@ void Player::update(float dt, sf::Vector2f aimTarget) {
     aimTarget.x = std::clamp(aimTarget.x, 0.f, kDesignWidth);
     aimTarget.y = std::clamp(aimTarget.y, 0.f, kDesignHeight);
 
-    m_crosshairPosition += (aimTarget - m_crosshairPosition) * kCrosshairSmoothing;
+    m_crosshairPosition += (aimTarget - m_crosshairPosition) * m_crosshairSmoothing;
     m_crosshairShape.setPosition(m_crosshairPosition);
 
     m_equippedWeapon->update(dt);
 }
-
+void Player::setSensitivity(float sensitivity) {
+    m_crosshairSmoothing = std::clamp(sensitivity,
+                                       Settings::kMinSensitivity,
+                                       Settings::kMaxSensitivity);
+}
 void Player::reset() {
     m_health = kMaxHealth;
     m_crosshairPosition = {kDesignWidth / 2.f, kDesignHeight / 2.f};

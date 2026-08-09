@@ -19,7 +19,9 @@ namespace deadaim {
 enum class GameState {
     MainMenu,
     Playing,
-    GameOver
+    GameOver,
+    SettingsMenu
+
 };
 
 class Application {
@@ -33,7 +35,7 @@ private:
     void updatePlaying(float dt, sf::Vector2f mouseDesignPosition);
     void render();
     void resetGame();
-
+    void applySettings(const Settings& settings);
     Window m_window;
     Renderer m_renderer;
     AssetManager m_assetManager; 
