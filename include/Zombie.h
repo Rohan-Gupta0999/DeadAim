@@ -31,8 +31,8 @@ public:
     bool isAlive() const override;
 
     void takeDamage(int amount);
-    sf::Vector3f getWorldPosition() const; // torso centre, world space
-    float getWorldRadius() const;          // world units, depth-independent
+    sf::Vector3f getWorldPosition() const; 
+    float getWorldRadius() const;          
     float getDepth() const;
     unsigned int getId() const;
 
@@ -40,14 +40,14 @@ private:
     sf::Sprite m_sprite;
     Player& m_player;
     int m_health;
-    float m_speed;          // WORLD units per second, not pixels
+    float m_speed;        
     float m_attackTimer = 0.f;
 
-    float m_depth;              // world z
+    float m_depth;              
     
-    float m_screenY = 0.f;      // projected ground Y (also the sort key)
+    float m_screenY = 0.f;    
     float m_apparentHeight = 0.f;
-    float m_baseHeight = 64.f;  // texture height, cached at construction
+    float m_baseHeight = 64.f;  
     float m_lane = 0.f;
     float m_attackDepth;
     float m_lateral = 0.f;
@@ -56,7 +56,7 @@ private:
 
     static constexpr float kAttackIntervalSeconds = 1.f;
     static constexpr int kAttackDamage = 5;
-    static constexpr float kBodyRadiusFraction = 0.30f; // of apparent height
+    static constexpr float kBodyRadiusFraction = 0.30f; 
 };
 
-} // namespace deadaim
+} 

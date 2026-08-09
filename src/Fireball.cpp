@@ -22,14 +22,12 @@ void Fireball::update(float dt) {
     }
 }
 
-std::unique_ptr<Projectile> Fireball::tryFire(sf::Vector3f muzzleWorld,
-                                               sf::Vector3f directionWorld) {
+std::unique_ptr<Projectile> Fireball::tryFire(const AimRay& ray) {
     if (m_cooldownTimer > 0.f) {
         return nullptr;
     }
-
     m_cooldownTimer = kCooldownSeconds;
-    return std::make_unique<Projectile>(muzzleWorld, directionWorld, kFireballConfig);
+    return std::make_unique<Projectile>(ray, kFireballConfig);
 }
 
-} // namespace deadaim
+} 

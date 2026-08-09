@@ -34,14 +34,11 @@ void Gun::update(float dt) {
     }
 }
 
-std::unique_ptr<Projectile> Gun::tryFire(sf::Vector3f muzzleWorld,
-                                          sf::Vector3f directionWorld) {
+std::unique_ptr<Projectile> Gun::tryFire(const AimRay& ray) {
     if (m_state != State::Ready) {
         return nullptr;
     }
 
-    // No direction maths here any more -- Player already produced a
-    // normalised world ray, so the weapon's only job is its own timing.
     --m_roundsInMagazine;
     if (m_roundsInMagazine <= 0) {
         m_state = State::Reloading;
@@ -51,7 +48,7 @@ std::unique_ptr<Projectile> Gun::tryFire(sf::Vector3f muzzleWorld,
         m_timer = kCooldownSeconds;
     }
 
-    return std::make_unique<Projectile>(muzzleWorld, directionWorld, kBulletConfig);
+    return std::make_unique<Projectile>(ray, kBulletConfig);
 }
 
-} // namespace deadaim
+} 

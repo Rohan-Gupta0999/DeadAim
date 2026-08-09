@@ -23,7 +23,7 @@ void WeaponView::update(float dt, WeaponType weapon, bool justFired) {
         const sf::Texture* texture = m_gunTexture;
         if (weapon == WeaponType::Bow)      texture = m_bowTexture;
         if (weapon == WeaponType::Fireball) texture = m_fireballTexture;
-        m_sprite.setTexture(*texture, true); // resetRect: sizes differ per weapon
+        m_sprite.setTexture(*texture, true); 
     }
 
     sf::FloatRect bounds = m_sprite.getLocalBounds();
@@ -38,14 +38,12 @@ void WeaponView::update(float dt, WeaponType weapon, bool justFired) {
     }
     m_recoil = std::max(0.f, m_recoil - dt / kRecoilRecoverySeconds);
 
-    // Lissajous bob: horizontal and vertical on different periods, so the
-    // motion traces a slow figure-eight rather than an obvious straight
-    // oscillation.
+    
     float bobX = std::sin(m_idleTime * kBobSpeed) * kBobAmplitudeX;
     float bobY = std::sin(m_idleTime * kBobSpeed * 2.f) * kBobAmplitudeY;
     float kick = m_recoil * kRecoilKick;
 
-    // Fixed anchor. No crosshair term anywhere in this expression.
+    
     m_sprite.setPosition({kAnchorX + bobX,
                           perspective::kDesignHeight + kAnchorBottomOffset + bobY + kick});
 }
@@ -54,4 +52,4 @@ void WeaponView::render(Renderer& renderer) const {
     renderer.submit(m_sprite, RenderLayer::Weapon);
 }
 
-} // namespace deadaim
+} 

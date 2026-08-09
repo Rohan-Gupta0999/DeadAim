@@ -40,16 +40,13 @@ void Player::reset() {
     m_health = kMaxHealth;
     m_crosshairPosition = {kDesignWidth / 2.f, kDesignHeight / 2.f};
     m_crosshairShape.setPosition(m_crosshairPosition);
-    // Fresh weapon: also clears a half-empty magazine or an in-progress
-    // reload left over from the previous run.
+    
     m_equippedType = WeaponType::Gun;
     m_equippedWeapon = std::make_unique<Gun>();
 }
 
 void Player::equipWeapon(WeaponType type) {
-    // Critical: bail out if it's already equipped. Application calls this
-    // every frame the gesture is held -- rebuilding the weapon each time
-    // would reset its cooldown continuously and it could never fire.
+    
     if (type == m_equippedType) {
         return;
     }
@@ -99,20 +96,16 @@ sf::Vector2f Player::getPosition() const {
 }
 
 std::unique_ptr<Projectile> Player::tryFire() {
-    // Build the world-space aim ray. Unprojecting the crosshair at spawn
-    // depth gives the world point the crosshair is "over"; the direction
-    // is that point minus the muzzle.
-    //
-    // Because the muzzle sits right of the camera, the path converges on
-    // the crosshair exactly at spawn depth and reads slightly right of
-    // it up close -- real weapon parallax, the same convergence real FPS
-    // games call the zero range.
-    sf::Vector3f muzzle = perspective::muzzleWorld();
-    sf::Vector3f aimPoint = perspective::unproject(m_crosshairPosition,
-                                                    perspective::kSpawnDepth);
-    sf::Vector3f direction = perspective::normalized(aimPoint - muzzle);
+    AimRay ray;
 
-    return m_equippedWeapon->tryFire(muzzle, direction);
+    ray.origin = perspective::unproject(m_crosshairPosition,
+                                        perspective::kProjectileSpawnDepth);
+
+    ray.direction = perspective::normalized(ray.origin - perspective::cameraWorld());
+
+    ray.visualOrigin = perspective::muzzleWorld();
+
+    return m_equippedWeapon->tryFire(ray);
 }
 
-} // namespace deadaim
+}

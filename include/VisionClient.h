@@ -9,9 +9,7 @@
 
 namespace deadaim {
 
-// Which gesture the vision process currently recognises. Bow and
-// Fireball are declared now because the parser maps them the same way --
-// they simply never arrive until those recognisers are built.
+
 enum class GestureType {
     None,
     Gun,
@@ -19,11 +17,7 @@ enum class GestureType {
     Fireball
 };
 
-// Purpose: what the Python vision process sends across the IPC boundary.
-// Deliberately game-facing: no MediaPipe concepts leak into C++.
-//
-// Note: the JSON also carries the full 21-point landmark list per hand.
-// Still intentionally unparsed -- nothing in the game reads it yet.
+
 struct VisionData {
     bool tracking = false;
     int handCount = 0;
@@ -34,19 +28,7 @@ struct VisionData {
     bool firing = false;
 };
 
-// Purpose: the C++ side of the Vision pipeline's IPC boundary.
-//
-// Responsibilities: connect on a background thread, retrying quietly
-// until the vision process is up; parse newline-delimited JSON; store
-// only the most recent message, safely, for the main thread to read
-// without ever blocking.
-//
-// Dependencies: nlohmann/json; platform sockets (isolated to the .cpp).
-//
-// Contract: getLatestData() returns nullopt if nothing has arrived yet
-// OR if the last message is older than kStaleAfterMs -- so a dead vision
-// process reads as "no data" rather than freezing the crosshair, or
-// worse, leaving the gun stuck firing.
+
 class VisionClient {
 public:
     VisionClient();
@@ -71,4 +53,4 @@ private:
     static constexpr int kStaleAfterMs = 500;
 };
 
-} // namespace deadaim
+} 

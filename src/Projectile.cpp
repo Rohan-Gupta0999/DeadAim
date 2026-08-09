@@ -10,36 +10,34 @@ namespace {
 constexpr float kRadToDeg = 180.f / 3.14159265358979f;
 }
 
-Projectile::Projectile(sf::Vector3f origin, sf::Vector3f direction,
-                        const ProjectileConfig& config)
-    : m_position(origin)
-    , m_previousPosition(origin)
-    , m_velocity(perspective::normalized(direction) * config.speed)
+Projectile::Projectile(const AimRay& ray, const ProjectileConfig& config)
+    : m_position(ray.origin)
+    , m_previousPosition(ray.origin)
+    , m_velocity(perspective::normalized(ray.direction) * config.speed)
     , m_worldSize(config.worldSize)
     , m_damage(config.damage)
     , m_worldRadius(config.collisionRadius)
     , m_explosionRadius(config.explosionRadius)
     , m_piercesRemaining(config.pierceCount)
+    , m_visualOffset(ray.visualOrigin - ray.origin)
 {
     m_shape.setFillColor(config.color);
     m_alreadyHit.reserve(static_cast<std::size_t>(config.pierceCount));
-    refreshVisual(); // project into place before the first frame draws
+    refreshVisual();
 }
 
 void Projectile::update(float dt) {
     m_previousPosition = m_position;
     m_position += m_velocity * dt;
 
-    // Depth bounds. z can never go negative here -- every aim direction
-    // has a positive z component, because the aim target is unprojected
-    // at spawn depth, always well beyond the muzzle.
+   
+    m_visualBlend = std::max(0.f, m_visualBlend - dt / kVisualBlendSeconds);
+
     if (m_position.z > perspective::kMaxProjectileDepth || m_position.z < 0.2f) {
         m_expired = true;
         return;
     }
-
-    // Screen bounds, with margin so something just off-frame isn't culled
-    // while still visually relevant.
+    
     sf::Vector2f screen = perspective::project(m_position);
     if (screen.x < -300.f || screen.x > perspective::kDesignWidth + 300.f ||
         screen.y < -300.f || screen.y > perspective::kDesignHeight + 300.f) {
@@ -51,8 +49,11 @@ void Projectile::update(float dt) {
 }
 
 void Projectile::refreshVisual() {
-    sf::Vector2f screen = perspective::project(m_position);
-    float scale = perspective::projectScale(m_position.z);
+    
+    sf::Vector3f visualPosition = m_position + m_visualOffset * m_visualBlend;
+
+    sf::Vector2f screen = perspective::project(visualPosition);
+    float scale = perspective::projectScale(visualPosition.z);
 
     sf::Vector2f size{
         std::clamp(m_worldSize.x * scale, kMinScreenLength, kMaxScreenLength),
@@ -63,11 +64,7 @@ void Projectile::refreshVisual() {
     m_shape.setOrigin({size.x * 0.5f, size.y * 0.5f});
     m_shape.setPosition(screen);
 
-    // Rotation comes from projecting a point slightly ahead along the
-    // velocity, not from the raw 3D direction: what we need is the
-    // travel direction ON SCREEN, which perspective bends. This is what
-    // makes tracers streak toward the vanishing point correctly.
-    sf::Vector2f aheadScreen = perspective::project(m_position + m_velocity * 0.02f);
+    sf::Vector2f aheadScreen = perspective::project(visualPosition + m_velocity * 0.02f);
     sf::Vector2f delta = aheadScreen - screen;
     if (delta.x * delta.x + delta.y * delta.y > 0.0001f) {
         m_shape.setRotation(sf::degrees(std::atan2(delta.y, delta.x) * kRadToDeg));
@@ -75,8 +72,7 @@ void Projectile::refreshVisual() {
 }
 
 void Projectile::render(Renderer& renderer) const {
-    // Shared sort key with Zombie: larger scale means nearer means drawn
-    // in front, so projectiles interleave correctly with the horde.
+ 
     renderer.submit(m_shape, RenderLayer::World, perspective::projectScale(m_position.z));
 }
 
@@ -120,4 +116,4 @@ void Projectile::consume() {
     m_expired = true;
 }
 
-} // namespace deadaim
+} 

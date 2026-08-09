@@ -27,9 +27,6 @@ sf::Font* AssetManager::getFont(const std::string& path) {
         return &it->second;
     }
 
-    // Note: SFML 3 renamed the font loader to openFromFile -- the font
-    // keeps the file open and streams glyphs on demand, which is also why
-    // the file must remain on disk for the lifetime of the sf::Font.
     sf::Font font;
     if (!font.openFromFile(path)) {
         std::cerr << "[AssetManager] Failed to load font: " << path << "\n";
@@ -51,4 +48,4 @@ sf::Texture& AssetManager::getFallbackTexture() {
     return m_fallbackTexture;
 }
 
-} // namespace deadaim
+} 

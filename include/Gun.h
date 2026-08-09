@@ -9,8 +9,7 @@ public:
     Gun();
 
     void update(float dt) override;
-    std::unique_ptr<Projectile> tryFire(sf::Vector3f muzzleWorld,
-                                        sf::Vector3f directionWorld) override;
+    std::unique_ptr<Projectile> tryFire(const AimRay& ray) override;
     const char* getName() const override { return "Gun"; }
 
 private:
@@ -25,4 +24,4 @@ private:
     static constexpr int kMagazineSize = 12;
 };
 
-} // namespace deadaim
+} 

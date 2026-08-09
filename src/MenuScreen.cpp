@@ -15,9 +15,7 @@ constexpr float kTitleY = 320.f;
 constexpr float kSubtitleY = 440.f;
 constexpr float kHighScoreY = 510.f;
 
-// Centres a text object on its own middle. getLocalBounds() includes the
-// glyphs' own offset, so both position and size are needed here --
-// using size alone leaves text slightly off-centre.
+
 void centreText(sf::Text& text, float x, float y) {
     sf::FloatRect bounds = text.getLocalBounds();
     text.setOrigin({bounds.position.x + bounds.size.x / 2.f,
@@ -83,8 +81,6 @@ void MenuScreen::setMode(Mode mode, const MenuInfo& info) {
         m_subtitleText->setString("Raise a finger gun to aim. Drop your thumb to fire.");
         m_subtitleText->setFillColor(sf::Color(200, 200, 200));
 
-        // Nothing to brag about on a first run -- leave the line blank
-        // rather than showing "HIGH SCORE 0".
         m_highScoreText->setString(
             info.highScore > 0 ? "HIGH SCORE  " + std::to_string(info.highScore) : "");
         m_highScoreText->setFillColor(kGold);
@@ -105,8 +101,6 @@ void MenuScreen::setMode(Mode mode, const MenuInfo& info) {
         m_primaryButton.label->setString("RESTART");
     }
 
-    // Re-centre everything whose string just changed -- a different word
-    // is a different width, and each origin was computed for the old one.
     centreText(*m_titleText, kDesignWidth / 2.f, kTitleY);
     centreText(*m_subtitleText, kDesignWidth / 2.f, kSubtitleY);
     centreText(*m_highScoreText, kDesignWidth / 2.f, kHighScoreY);
@@ -150,4 +144,4 @@ void MenuScreen::render(Renderer& renderer) const {
     }
 }
 
-} // namespace deadaim
+} 

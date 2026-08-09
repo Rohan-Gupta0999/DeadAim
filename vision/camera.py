@@ -15,9 +15,7 @@ import cv2
 
 class Camera:
     def __init__(self, device_index=0, width=640, height=480):
-        # 640x480 is a deliberate choice: MediaPipe downscales internally
-        # anyway, and a smaller frame means less time spent on colour
-        # conversion and copying per frame.
+        
         self._capture = cv2.VideoCapture(device_index)
         self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
@@ -41,14 +39,10 @@ class Camera:
             if not ok:
                 continue
 
-            # Mirror horizontally. Two reasons: a raw webcam image is not
-            # a mirror, so moving your hand right would move the crosshair
-            # left; and MediaPipe labels handedness assuming a mirrored
-            # (selfie-camera) input, so flipping keeps Left/Right correct.
             frame = cv2.flip(frame, 1)
 
             with self._lock:
-                self._latest_frame = frame  # overwrite -- never append
+                self._latest_frame = frame  
 
     def read_latest(self):
         with self._lock:

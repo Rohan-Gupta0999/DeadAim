@@ -14,10 +14,7 @@ AudioSystem::AudioSystem() {
     loadSound(SoundId::GameOver,     "assets/audio/game_over.wav");
     loadSound(SoundId::NewHighScore, "assets/audio/new_high_score.wav");
 
-    // sf::Sound needs a buffer at construction in SFML 3, so the pool is
-    // seeded from whichever buffer loaded first -- play() swaps in the
-    // right one before each use. If nothing loaded at all, the pool stays
-    // empty and every play() call is a harmless no-op.
+
     if (!m_buffers.empty()) {
         const sf::SoundBuffer& seed = m_buffers.begin()->second;
         m_soundPool.reserve(kPoolSize);
@@ -41,7 +38,7 @@ void AudioSystem::loadSound(SoundId id, const std::string& path) {
     sf::SoundBuffer buffer;
     if (!buffer.loadFromFile(path)) {
         std::cerr << "[AudioSystem] Missing sound: " << path << "\n";
-        return; // absent from the map; play() will silently skip it
+        return; 
     }
     m_buffers.emplace(static_cast<int>(id), std::move(buffer));
 }
@@ -49,7 +46,7 @@ void AudioSystem::loadSound(SoundId id, const std::string& path) {
 void AudioSystem::play(SoundId id) {
     auto it = m_buffers.find(static_cast<int>(id));
     if (it == m_buffers.end()) {
-        return; // never loaded -- stay silent rather than complain every frame
+        return; 
     }
 
     for (auto& sound : m_soundPool) {
@@ -60,9 +57,7 @@ void AudioSystem::play(SoundId id) {
             return;
         }
     }
-    // Pool exhausted: drop this sound rather than cut off one already
-    // playing. A missed sound during chaos is imperceptible; a chopped
-    // one is obvious.
+   
 }
 
 void AudioSystem::startMusic() {
@@ -88,4 +83,4 @@ void AudioSystem::setMusicVolume(float volume) {
     }
 }
 
-} // namespace deadaim
+}

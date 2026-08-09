@@ -8,8 +8,13 @@ namespace deadaim {
 
 class Projectile;
 
-// Which weapon is equipped. Lives here rather than in Player so that
-// Application can request a switch without knowing the concrete classes.
+
+struct AimRay {
+    sf::Vector3f origin;      
+    sf::Vector3f direction;    
+    sf::Vector3f visualOrigin; 
+};
+
 enum class WeaponType {
     Gun,
     Bow,
@@ -22,14 +27,8 @@ public:
 
     virtual void update(float dt) = 0;
 
-    // Returns nullptr if the weapon can't fire right now (cooldown,
-    // empty magazine, mid-reload) -- an ordinary outcome, not an error.
-    // Both arguments are WORLD space: where the shot leaves the weapon,
-    // and a unit direction into the scene. Player builds these by
-    // unprojecting the crosshair -- weapons never touch screen space.
-    virtual std::unique_ptr<Projectile> tryFire(sf::Vector3f muzzleWorld,
-                                                 sf::Vector3f directionWorld) = 0;
+    virtual std::unique_ptr<Projectile> tryFire(const AimRay& ray) = 0;
     virtual const char* getName() const = 0;
 };
 
-} // namespace deadaim
+} 

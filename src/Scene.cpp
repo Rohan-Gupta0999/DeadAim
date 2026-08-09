@@ -1,9 +1,8 @@
 #include "Scene.h"
-#include "Projectile.h" // needed: converting unique_ptr<Projectile> to
-                         // unique_ptr<IGameObject> requires the complete type
+#include "Projectile.h" 
 #include <algorithm>
 #include "AudioSystem.h"
-#include "IWeapon.h"   // for WeaponType
+#include "IWeapon.h"   
 
 namespace deadaim {
 
@@ -15,9 +14,7 @@ void Scene::update(float dt, sf::Vector2f aimTarget, bool fireHeld, AudioSystem&
     m_player.update(dt, aimTarget);
 
     if (fireHeld) {
-        // Only sounds when a shot is ACTUALLY produced -- tryFire returns
-        // null on cooldown, empty magazine, or mid-reload, and a click
-        // with no bullet would be misleading feedback.
+    
         if (auto projectile = m_player.tryFire()) {
             switch (m_player.getEquippedWeapon()) {
             case WeaponType::Gun:      audio.play(SoundId::GunFire); break;
@@ -50,9 +47,7 @@ void Scene::render(Renderer& renderer) const {
 }
 
 void Scene::reset() {
-    // Objects are cleared BEFORE the player is reset. Every Zombie holds
-    // a Player& -- clearing first guarantees nothing is left holding a
-    // reference while the player's state changes underneath it.
+ 
     m_objects.clear();
     m_player.reset();
     m_score = 0;
@@ -84,4 +79,4 @@ bool Scene::consumeShotFired() {
     return fired;
 }
 
-} // namespace deadaim
+}

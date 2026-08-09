@@ -14,7 +14,6 @@ SaveSystem::SaveSystem(std::string filePath)
 void SaveSystem::load() {
     std::ifstream file(m_filePath);
     if (!file.is_open()) {
-        // First run: expected, not a failure.
         std::cerr << "[SaveSystem] No save file yet -- starting fresh.\n";
         return;
     }
@@ -25,7 +24,6 @@ void SaveSystem::load() {
         m_highScore = data.value("high_score", 0);
         std::cerr << "[SaveSystem] Loaded high score: " << m_highScore << "\n";
     } catch (const nlohmann::json::exception&) {
-        // A corrupt file shouldn't cost anyone their game session.
         std::cerr << "[SaveSystem] Save file unreadable -- ignoring it.\n";
         m_highScore = 0;
     }
@@ -55,7 +53,7 @@ void SaveSystem::save() const {
         return;
     }
 
-    file << data.dump(2); // indented: this file is meant to be readable during testing
+    file << data.dump(2); 
 }
 
-} // namespace deadaim
+} 

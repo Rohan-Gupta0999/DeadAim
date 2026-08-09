@@ -77,22 +77,17 @@ Environment::Environment() {
     m_vignetteRight = horizontalGradient(kDesignWidth - 320.f, 0.f, 320.f, kDesignHeight,
                                          sf::Color(0, 0, 0, 0), sf::Color(0, 0, 0, 160));
 
-    rebuildFog(); // build once so the first frame isn't missing its fog
+    rebuildFog();
 
-// Receding ground plane: lines converging on the vanishing point plus
-    // horizontal bands that bunch up toward the horizon. This is what
-    // actually communicates "you are standing looking forward" -- a flat
-    // gradient alone reads as a top-down field.
     m_groundLines.setPrimitiveType(sf::PrimitiveType::Lines);
 
-    const sf::Color lineFar(70, 78, 88, 0);    // invisible at the horizon
-    const sf::Color lineNear(70, 78, 88, 55);  // faint but present up close
+    const sf::Color lineFar(70, 78, 88, 0);    
+    const sf::Color lineNear(70, 78, 88, 55);  
 
     constexpr int kRadialCount = 17;
     for (int i = 0; i < kRadialCount; ++i) {
         float t = static_cast<float>(i) / (kRadialCount - 1);
-        // Spread well past the screen edges so the outermost lines still
-        // cross the bottom corners.
+        
         float bottomX = -900.f + t * (kDesignWidth + 1800.f);
 
         sf::Vertex top;
@@ -106,12 +101,9 @@ Environment::Environment() {
         m_groundLines.append(bottom);
     }
 
-    // Bands at evenly spaced WORLD depths, projected through the same
-    // camera the zombies use. They bunch toward the horizon on their own,
-    // so no hand-tuned curve is needed -- and the ground now agrees with
-    // where zombies actually stand, instead of merely resembling it.
+
     constexpr int kBandCount = 11;
-    constexpr float kNearestBandDepth = 1.4f; // just past the player, filling the foreground
+    constexpr float kNearestBandDepth = 1.4f; 
     for (int i = 0; i < kBandCount; ++i) {
         float t = static_cast<float>(i) / (kBandCount - 1);
         float z = perspective::kSpawnDepth
@@ -136,19 +128,14 @@ void Environment::update(float dt) {
 }
 
 void Environment::rebuildFog() {
-    // Density breathes slowly. The spec calls for a static environment,
-    // which this respects geometrically -- nothing moves. But motionless
-    // fog reads as a texture rather than air, and one sine call per frame
-    // is the cheapest possible fix.
+ 
     float drift = std::sin(m_time * kFogDriftSpeed);
     auto peak = static_cast<std::uint8_t>(kFogBaseAlpha + kFogDriftAmount * drift);
 
     sf::Color dense(kFogColour.r, kFogColour.g, kFogColour.b, peak);
     sf::Color clear(kFogColour.r, kFogColour.g, kFogColour.b, 0);
 
-    // Thickest at the horizon, thinning in both directions -- so zombies
-    // spawning at the top emerge OUT of the mist as they walk toward the
-    // player. Distance reads as distance.
+
     m_fogUpper = verticalGradient(0.f, 260.f, kDesignWidth, kHorizonY - 260.f, clear, dense);
     m_fogLower = verticalGradient(0.f, kHorizonY, kDesignWidth, 320.f, dense, clear);
 }
@@ -168,4 +155,4 @@ void Environment::render(Renderer& renderer) const {
     renderer.submit(m_vignetteRight, RenderLayer::Fog);
 }
 
-} // namespace deadaim
+} 

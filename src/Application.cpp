@@ -52,8 +52,6 @@ void Application::run() {
 
     
 void Application::update(float dt) {
-    // Updated in every state: the fog should breathe behind the menus
-    // too, not just during play.
     m_environment.update(dt);
 
     sf::Vector2f mouseDesignPosition =
@@ -101,10 +99,6 @@ Application::PlayerIntent Application::resolveInput(float dt, sf::Vector2f mouse
     if (intent.visionTracking) {
         intent.aimTarget = {visionData->aimX * kDesignWidth, visionData->aimY * kDesignHeight};
 
-        // Sticky weapon selection: a recognised gesture switches the
-        // weapon and it STAYS switched. If a weapon were equipped only
-        // while its gesture was held, releasing to fire would un-equip
-        // it in the same instant -- the shot would race the switch.
         switch (intent.gesture) {
         case GestureType::Gun:      m_scene.getPlayer().equipWeapon(WeaponType::Gun); break;
         case GestureType::Bow:      m_scene.getPlayer().equipWeapon(WeaponType::Bow); break;
@@ -113,9 +107,6 @@ Application::PlayerIntent Application::resolveInput(float dt, sf::Vector2f mouse
         }
     }
 
-    // Hand vanished mid-hold: cancel rather than loosing a shot at
-    // wherever the crosshair happened to freeze. Checked before the
-    // per-weapon logic so the falling edge below can't trigger.
     if (m_visionWasTracking && !intent.visionTracking) {
         m_holdWasActive = false;
         m_fireballCharge = 0.f;
@@ -134,10 +125,7 @@ Application::PlayerIntent Application::resolveInput(float dt, sf::Vector2f mouse
 
     case WeaponType::Bow: {
         m_fireballCharge = 0.f;
-        // Fires on the RELEASE -- the tick where the pinch was held and
-        // now isn't. Detected here rather than sent as an event from
-        // Python: state is idempotent, so re-reading the same message
-        // can't fire twice.
+        
         bool holdNow = (intent.gesture == GestureType::Bow) || mouseHeld;
         if (m_holdWasActive && !holdNow) {
             intent.shootRequest = true;
@@ -155,7 +143,7 @@ Application::PlayerIntent Application::resolveInput(float dt, sf::Vector2f mouse
             if (m_fireballCharge >= 1.f) {
                 intent.shootRequest = true;
             }
-            m_fireballCharge = 0.f; // released early: fizzles, starts over
+            m_fireballCharge = 0.f; 
         }
         m_holdWasActive = holdNow;
         break;
@@ -207,24 +195,16 @@ if (!m_scene.getPlayer().isAlive()) {
         info.isNewHighScore = m_saveSystem.submitScore(finalScore);
         info.highScore = m_saveSystem.getHighScore();
 
-        // Both plays live inside this block because the block is already
-        // once-only: it ends by setting m_state to GameOver, and
-        // updatePlaying() only runs while the state is Playing. No flag,
-        // timer, or extra state is needed to stop a repeat.
         m_audio.play(SoundId::GameOver);
 
-        // submitScore() returns true only when this beat the stored
-        // record, so it is exactly the "new best" condition. Reusing the
-        // same value the menu reads means the sound can never disagree
-        // with the gold NEW HIGH SCORE! text about to appear.
         if (info.isNewHighScore) {
             m_audio.play(SoundId::NewHighScore);
         }
 
         m_menu.setMode(MenuScreen::Mode::GameOver, info);
         m_state = GameState::GameOver;
-        m_holdWasActive = false;   // don't carry a half-drawn bow or
-        m_fireballCharge = 0.f;    // half-charged fireball into the next run
+        m_holdWasActive = false;  
+        m_fireballCharge = 0.f;    
         m_window.consumeLeftClick();
     }
 }
@@ -240,13 +220,9 @@ void Application::resetGame() {
 void Application::render() {
     m_renderer.beginFrame(sf::Color(20, 20, 25));
 
-    // Submitted first, but that's incidental -- Renderer buckets by layer,
-    // so the backdrop would land behind the world and the fog in front of
-    // it no matter what order these calls happen in.
+  
     m_environment.render(m_renderer);
 
-    // Game Over keeps the frozen scene visible behind the overlay -- the
-    // player gets to see what killed them.
     if (m_state == GameState::Playing || m_state == GameState::GameOver) {
         m_scene.render(m_renderer);
         m_weaponView.render(m_renderer);
@@ -261,4 +237,4 @@ void Application::render() {
     m_window.display();
 }
 
-} // namespace deadaim
+} 

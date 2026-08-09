@@ -48,4 +48,4 @@ private:
     static const sf::Vector2f kMuzzlePosition;
 };
 
-} // namespace deadaim
+} 

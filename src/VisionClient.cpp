@@ -37,8 +37,7 @@ GestureType parseGesture(const std::string& name) {
     return GestureType::None;
 }
 
-// Wraps the one-time platform setup only Winsock needs. A function-local
-// static is guaranteed thread-safe to initialise since C++11.
+
 class PlatformSocketGuard {
 public:
     PlatformSocketGuard() {
@@ -164,4 +163,4 @@ void VisionClient::receiveLoop(std::string host, unsigned short port) {
     }
 }
 
-} // namespace deadaim
+}

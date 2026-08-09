@@ -5,8 +5,7 @@ namespace deadaim {
 Window::Window(unsigned int width, unsigned int height, const std::string& title)
     : m_window(sf::VideoMode({width, height}), title)
 {
-    // Do NOT also call setVerticalSyncEnabled -- SFML's docs are explicit
-    // that combining the two makes frame pacing worse, not better.
+    
     m_window.setFramerateLimit(kFramerateLimit);
 }
 
@@ -61,4 +60,4 @@ sf::Vector2i Window::getLastClickPixelPosition() const {
     return m_lastClickPixel;
 }
 
-} // namespace deadaim
+} 

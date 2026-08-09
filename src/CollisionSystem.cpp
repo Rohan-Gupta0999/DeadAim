@@ -14,16 +14,11 @@ namespace deadaim {
 namespace {
 constexpr int kScorePerKill = 100;
 
-// Sphere-vs-sphere in world space.
 bool spheresOverlap(sf::Vector3f a, float radiusA, sf::Vector3f b, float radiusB) {
     float radiusSum = radiusA + radiusB;
     return perspective::lengthSquared(a - b) < radiusSum * radiusSum;
 }
 
-// Tests the whole segment the projectile swept this tick, in world space.
-// Still essential after the move to 3D -- more so, in fact: a bullet
-// covers 0.67 world units per tick against a combined radius of ~0.24,
-// so a point test would miss roughly two thirds of genuine hits.
 bool sweptSphereHit(sf::Vector3f from, sf::Vector3f to, float movingRadius,
                      sf::Vector3f target, float targetRadius) {
     sf::Vector3f segment = to - from;
@@ -34,7 +29,6 @@ bool sweptSphereHit(sf::Vector3f from, sf::Vector3f to, float movingRadius,
         return spheresOverlap(to, movingRadius, target, targetRadius);
     }
 
-    // Closest point on the swept segment to the zombie's centre.
     float t = perspective::dot(target - from, segment) / segmentLengthSquared;
     t = std::clamp(t, 0.f, 1.f);
 
@@ -42,7 +36,6 @@ bool sweptSphereHit(sf::Vector3f from, sf::Vector3f to, float movingRadius,
     return perspective::lengthSquared(target - closest) < radiusSum * radiusSum;
 }
 
-// One place that knows "damage, then award score if that was the kill".
 void damageZombie(Scene& scene, Zombie& zombie, int amount) {
     bool wasAlive = zombie.isAlive();
     zombie.takeDamage(amount);
@@ -95,10 +88,8 @@ void CollisionSystem::update(Scene& scene, AudioSystem& audio) {
             if (blastRadius > 0.f) {
                 for (Zombie* other : zombies) {
                     if (other == zombie || !other->isAlive()) {
-                        continue; // the direct target already took its damage
+                        continue; 
                     }
-                    // A blast is instantaneous at a point, so a plain
-                    // sphere test is right here -- nothing is sweeping.
                     if (spheresOverlap(impactPoint, blastRadius,
                                         other->getWorldPosition(), other->getWorldRadius())) {
                         damageZombie(scene, *other, projectile->getDamage());
@@ -106,18 +97,16 @@ void CollisionSystem::update(Scene& scene, AudioSystem& audio) {
                 }
 
                 audio.play(SoundId::Explosion);
-                // Safe to add while iterating: we hold raw pointers to
-                // heap objects, so vector growth moves the unique_ptrs,
-                // not the objects themselves.
+               
                 scene.addObject(std::make_unique<Explosion>(impactPoint, blastRadius));
                 projectile->consume();
             }
 
             if (!projectile->isAlive()) {
-                break; // pierce budget spent
+                break; 
             }
         }
     }
 }
 
-} // namespace deadaim
+} 

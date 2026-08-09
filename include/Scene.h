@@ -19,8 +19,7 @@ public:
 
     Player& getPlayer();
     const Player& getPlayer() const;
-    // True at most once per shot, then clears itself -- WeaponView reads
-    // this to trigger recoil. Same consume pattern as Window's click.
+   
     bool consumeShotFired();
     const std::vector<std::unique_ptr<IGameObject>>& getObjects() const;
     void addScore(int amount);
@@ -33,4 +32,4 @@ private:
     bool m_shotFired = false;
 };
 
-} // namespace deadaim
+}

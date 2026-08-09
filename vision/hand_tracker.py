@@ -10,11 +10,7 @@ import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
 
-# The landmark used as the aim anchor. 9 is the middle-finger MCP knuckle
-# -- effectively the centre of the palm. Fingertips (4, 8, 12...) are the
-# intuitive choice, but they MOVE during gestures: aiming from the index
-# tip would jerk the crosshair every time you curl a finger to fire. The
-# palm stays still while fingers articulate, so aim stays steady.
+
 AIM_LANDMARK_INDEX = 9
 
 
@@ -50,9 +46,7 @@ class HandTracker:
             hands.append({
                 "handedness": handedness,
                 "confidence": round(confidence, 4),
-                # Rounded to 4dp: full float precision would roughly double
-                # the message size for accuracy far below what a webcam
-                # can actually resolve.
+                
                 "landmarks": [
                     {"x": round(lm.x, 4), "y": round(lm.y, 4), "z": round(lm.z, 4)}
                     for lm in landmarks

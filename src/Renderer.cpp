@@ -27,9 +27,7 @@ void Renderer::submit(const sf::Drawable& drawable, RenderLayer layer, float sor
 
 void Renderer::endFrame() {
     for (auto& bucket : m_layers) {
-        // stable_sort, not sort: drawables sharing a key keep their
-        // submission order, so ties stay deterministic frame to frame
-        // rather than flickering.
+        
         std::stable_sort(bucket.begin(), bucket.end(),
             [](const Submission& a, const Submission& b) {
                 return a.sortKey < b.sortKey;
@@ -45,4 +43,4 @@ sf::Vector2f Renderer::mapPixelToDesignSpace(sf::Vector2i pixel) const {
     return m_target.mapPixelToCoords(pixel, m_designView);
 }
 
-} // namespace deadaim
+} 

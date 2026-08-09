@@ -9,8 +9,7 @@ namespace deadaim {
 class Renderer;
 class AssetManager;
 
-// Everything the menu needs to display beyond which mode it's in.
-// A struct rather than a growing parameter list, matching HudState.
+
 struct MenuInfo {
     int finalScore = 0;
     int highScore = 0;
@@ -54,4 +53,4 @@ private:
     static constexpr float kButtonHeight = 80.f;
 };
 
-} // namespace deadaim
+} 

@@ -179,8 +179,6 @@ class GunGesture:
         active = self._pose.update(raw_pose)
 
         openness = thumb_openness(lm)
-        # Trigger only evaluated inside the pose -- the single biggest
-        # accidental-fire preventer.
         self._trigger.update(active and openness < THUMB_DOWN_RATIO)
 
         return {
@@ -202,8 +200,6 @@ class BowGesture:
     consuming a queue.
     """
 
-    # Slightly slower to engage than to drop: a deliberate pinch, but a
-    # quick release, because the release is the shot.
     DRAW_FRAMES_ON = 3
     DRAW_FRAMES_OFF = 3
 
@@ -249,9 +245,6 @@ class FireballGesture:
             return {"active": False}
 
         lm = hand["landmarks"]
-        # Reuses THUMB_DOWN_RATIO deliberately: it measures thumb tip to
-        # index knuckle, and "above the threshold" is exactly "thumb is
-        # out". Same measurement, opposite side of the comparison.
         raw = _all_fingers_extended(lm) and thumb_openness(lm) > THUMB_DOWN_RATIO
         return {"active": self._pose.update(raw)}
 

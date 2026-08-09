@@ -6,15 +6,7 @@
 
 namespace deadaim {
 
-// Purpose: purely visual expanding ring marking a fireball detonation.
-//
-// Deliberately carries no damage: CollisionSystem applies the area
-// damage instantly at the moment of impact. Splitting them means the
-// visual can be retimed or replaced with a particle effect later
-// without any risk of changing what the blast actually hits.
-//
-// CollisionSystem ignores this automatically -- it identifies objects by
-// dynamic_cast to Projectile or Zombie, and this is neither.
+
 class Explosion : public IGameObject {
 public:
     Explosion(sf::Vector3f worldPosition, float worldRadius);
@@ -32,4 +24,4 @@ private:
     static constexpr float kDurationSeconds = 0.35f;
 };
 
-} // namespace deadaim
+} 

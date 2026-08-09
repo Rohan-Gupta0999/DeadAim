@@ -11,15 +11,14 @@ namespace {
 const sf::Vector2f kHealthBarPosition{40.f, 990.f};
 constexpr float kScoreY = 30.f;
 constexpr float kWaveY = 80.f;
-constexpr float kWeaponY = 880.f;                      // moved up to clear the charge bar
+constexpr float kWeaponY = 880.f;                      
 const sf::Vector2f kChargeBarPosition{40.f, 935.f};
 constexpr float kChargeBarHeight = 22.f;
 constexpr float kLeftMargin = 40.f;
 }
 
 HUD::HUD(AssetManager& assets) {
-    // The bar works with or without a font -- set it up unconditionally
-    // so a missing font costs text only, not all feedback.
+    
     m_healthBarBackground.setSize({kHealthBarWidth, kHealthBarHeight});
     m_healthBarBackground.setPosition(kHealthBarPosition);
     m_healthBarBackground.setFillColor(sf::Color(60, 60, 60));
@@ -76,14 +75,12 @@ void HUD::update(const HudState& state) {
     healthFraction = std::clamp(healthFraction, 0.f, 1.f);
     m_healthBarFill.setSize({kHealthBarWidth * healthFraction, kHealthBarHeight});
 
-// Hidden entirely at zero: a permanently empty bar is visual noise
-    // for the two weapons that never charge.
+
     m_showChargeBar = state.fireballCharge > 0.f;
     if (m_showChargeBar) {
         float charge = std::clamp(state.fireballCharge, 0.f, 1.f);
         m_chargeBarFill.setSize({kHealthBarWidth * charge, kChargeBarHeight});
-        // Colour is the "you can throw now" signal -- more legible at a
-        // glance than judging whether the bar is completely full.
+        
         m_chargeBarFill.setFillColor(charge >= 1.f ? sf::Color(255, 230, 120)
                                                    : sf::Color(220, 110, 40));
     }
@@ -138,4 +135,4 @@ void HUD::render(Renderer& renderer) const {
     renderer.submit(*m_trackingText, RenderLayer::UI);
 }
 
-} // namespace deadaim
+} 
